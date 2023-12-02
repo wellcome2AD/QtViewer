@@ -30,7 +30,7 @@ private:
     std::shared_ptr<IMessagePack> _msg_pack;
 
 private slots:
-    void signInDialogAccepted(QString port, QString user_name, QString password);
+    void signInDialogAccepted(QString url, QString user_name, QString password);
     void signInDialogRejected();
     void sendMessage();
     void handleMessage(const IMessage& m);

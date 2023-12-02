@@ -30,13 +30,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     _client.AddObserver(this);
 
-    /*std::thread thr([&]() {
+    std::thread thr([&]() {
         while (_is_connected.load())
         {
             _client.recv();
         }
     });
-    thr.detach();*/
+    thr.detach();
 }
 
 MainWindow::~MainWindow()
@@ -44,10 +44,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::signInDialogAccepted(QString port, QString user_name, QString password)
+void MainWindow::signInDialogAccepted(QString url, QString user_name, QString password)
 {
     // TODO: do authentication
-    this->_url = "127.0.0.1:" + port;
+    this->_url = url;
     this->_user_name = user_name;
     this->_password = password;
     while (_is_connected.load() == false)
@@ -73,16 +73,30 @@ void MainWindow::signInDialogRejected()
 
 void MainWindow::sendMessage()
 {
-    /*
-    this->appendPlainText(text); // Adds the message to the widget
-    this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum()); // Scrolls to the bottom
-    m_logFile.write(text); // Logs to file
-    // optional if you want to see the changes
-    // after appendPlainText() immediately
-    // useful if you use this->appendMessage() in a loop
-    QCoreApplication::processEvents();
-    */
-    ui->plainTextEdit->appendPlainText(ui->textEdit->toPlainText());
+    auto msg = ui->textEdit->toPlainText().toStdString();
+    auto &&url = _url.toStdString(), username = _user_name.toStdString(), password = _password.toStdString();
+    AuthorizedMessage* msg_to_send = nullptr;
+    format msg_format = fileExists(msg) ? file : text;
+    switch (msg_format) {
+    case text:
+    {
+        msg_to_send = new TextMessage(username, password, msg);
+        break;
+    }
+    case file:
+    {
+        auto dot_befor_ext = msg.find_last_of('.');
+        auto extension = msg.substr(dot_befor_ext);
+        auto file_data = readFromFile(msg);
+        msg_to_send = new FileMessage(username, password, extension, file_data);
+        break;
+    }
+    default:
+        assert(0);
+        break;
+    }
+    _client.send(url, msg_to_send);
+    delete[] msg_to_send;
 }
 
 void MainWindow::tryToConnect()
@@ -122,6 +136,8 @@ void MainWindow::handleMessage(const IMessage& msg)
     {
         auto&& txt_msg = static_cast<const TextMessage&>(msg);
         _msg_pack->AddMsg(txt_msg);
+        auto str = txt_msg.GetUsername() + txt_msg.GetMsg();
+        ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
         break;
     }
     case file:
@@ -132,6 +148,8 @@ void MainWindow::handleMessage(const IMessage& msg)
         system(std::string("start " + file_name).c_str());
         // TODO хранить в FileMessage не расширение, а имя файла
         _msg_pack->AddMsg(FileMessage(file_msg.GetUsername(), file_msg.GetPassword(), file_msg.GetExtension(), file_name));
+        auto str = file_msg.GetUsername() + file_name;
+        ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
         break;
     }
     case msgPack:
