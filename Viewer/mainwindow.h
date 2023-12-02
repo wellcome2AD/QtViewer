@@ -24,12 +24,14 @@ private:
 private:
     Ui::MainWindow *ui;
     friend Client;
-    std::string _url;
+    QString _url, _user_name, _password;
     Client _client;
-    std::atomic<bool> is_connected;
+    std::atomic<bool> _is_connected;
     std::shared_ptr<IMessagePack> _msg_pack;
 
 private slots:
+    void signInDialogAccepted(QString port, QString user_name, QString password);
+    void signInDialogRejected();
     void sendMessage();
     void handleMessage(const IMessage& m);
 

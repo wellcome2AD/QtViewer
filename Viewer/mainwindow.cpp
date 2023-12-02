@@ -1,3 +1,5 @@
+#include <QLineEdit>
+#include <QDir>
 #include <thread>
 #include <MessagesUpdateEvent.h>
 #include <Socket/ConnResetException.h>
@@ -5,42 +7,68 @@
 #include <TextMessage.h>
 #include <FileMessage.h>
 #include <UtilFile.h>
+#include <QDebug>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "signindialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->pushButton, SIGNAL (released()),this, SLOT (sendMessage()));
+    connect(ui->pushButton, SIGNAL (released()),this, SLOT (sendMessage()));    
 
-    is_connected.store(false);
+    _is_connected.store(false);
 
-        while (is_connected.load() == false)
+    // register dialog
+    SignInDialog *d = new SignInDialog(this);
+    d->show();
+    connect(d, &SignInDialog::SignInDialogAccepted, this, &MainWindow::signInDialogAccepted);
+    connect(d, &SignInDialog::SignInDialogRejected, this, &MainWindow::signInDialogRejected);
+
+    _client.AddObserver(this);
+
+    /*std::thread thr([&]() {
+        while (_is_connected.load())
         {
-            tryToConnect();
-
-            if (!is_connected.load())
-            {
-                // std::cout << "Error: Can't connect by this URL\n\n";
-            }
+            _client.recv();
         }
-        _client.AddObserver(this);
-
-        std::thread thr([&]() {
-            while (is_connected.load())
-            {
-                _client.recv();
-            }
-        });
-        thr.detach();
+    });
+    thr.detach();*/
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::signInDialogAccepted(QString port, QString user_name, QString password)
+{
+    // TODO: do authentication
+    this->_url = "127.0.0.1:" + port;
+    this->_user_name = user_name;
+    this->_password = password;
+    while (_is_connected.load() == false)
+    {
+        tryToConnect();
+
+        if (!_is_connected.load())
+        {
+            qDebug() << "Error: Can't connect by this URL\n\n";
+            // register dialog
+            SignInDialog d(this);
+            d.show();
+        }
+    }
+}
+
+void MainWindow::signInDialogRejected()
+{
+    // register dialog
+    SignInDialog d(this);
+    d.show();
 }
 
 void MainWindow::sendMessage()
@@ -59,12 +87,7 @@ void MainWindow::sendMessage()
 
 void MainWindow::tryToConnect()
 {
-    std::string ip("127.0.0.1:");
-    // std::cout << "Input port to connect: " << ip;
-    std::string port;
-    // std::cin >> port;
-    _url = ip + port;
-    is_connected.store(_client.connect(_url));
+    _is_connected.store(_client.connect(_url.toStdString()));
 }
 
 void MainWindow::Update(const Event& e)
@@ -74,18 +97,14 @@ void MainWindow::Update(const Event& e)
     case messagesUpdate:
     {
         auto&& msg = static_cast<const MessagesUpdateEvent&>(e).GetMsg();
+        qDebug() << "New message\n";
         handleMessage(msg);
-        // std::lock_guard<std::mutex> console_lg(_console_mutex);
-        // m_console.clearScreen();
-        // printf("Press ESC to type message\n");
-        // printMsgs();
-        // printf("----------\nPress ESC to type message\n");
         break;
     }
     case connReset:
     {
-        // std::cout << "Server disconnected\n";
-        is_connected.store(false);
+        qDebug() << "Server disconnected\n";
+        _is_connected.store(false);
         tryToConnect();
         break;
     }

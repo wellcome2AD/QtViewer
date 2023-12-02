@@ -23,6 +23,7 @@ SOURCES += \
     Serializer/SocketSerializer.cpp \
     Viewer/main.cpp \
     Viewer/mainwindow.cpp \
+    Viewer/signindialog.cpp \
     helpers/File.cpp \
     helpers/Socket/Socket.cpp \
     helpers/Socket/SocketException.cpp
@@ -51,6 +52,7 @@ HEADERS += \
     Serializer/SerializerOperators.h \
     Serializer/SocketSerializer.h \
     Viewer/mainwindow.h \
+    Viewer/signindialog.h \
     helpers/File.h \
     helpers/Socket/ConnResetException.h \
     helpers/Socket/Socket.h \
