@@ -1,0 +1,21 @@
+﻿  SocketDeserializer.cpp
+  File.cpp
+  Socket.cpp
+d:\githubfiles\практика2\helpers\socket\socket.cpp(29): warning C4244: =: преобразование "SOCKET" в "int", возможна потеря данных
+d:\githubfiles\практика2\helpers\socket\socket.cpp(57): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+d:\githubfiles\практика2\helpers\socket\socket.cpp(83): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  SocketException.cpp
+  AuthorizedMessage.cpp
+  FileMessage.cpp
+  MessagePack.cpp
+  RequestMessage.cpp
+  TextMessage.cpp
+  ConnResetEvent.cpp
+  IObservable.cpp
+  MessagesUpdateEvent.cpp
+  SocketSerializer.cpp
+  AppClient.cpp
+  AppClientMain.cpp
+  SocketClient.cpp
+  Создание кода...
+  Client.vcxproj -> D:\GithubFiles\Практика2\x64\Debug\Client.exe
