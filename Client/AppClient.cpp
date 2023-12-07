@@ -104,8 +104,8 @@ std::shared_ptr<IMessagePack> Client::recv()
 	catch (const ConnResetException& ex)
 	{
 		printExc(ex);
-		disconnect();
-		Notify(ConnResetEvent(0));
+        disconnect();
+        emit notifySignal(QSharedPointer<Event>(new ConnResetEvent(0)));
 		return nullptr;
 	}
 	catch (const std::exception&)
@@ -116,19 +116,6 @@ std::shared_ptr<IMessagePack> Client::recv()
 	printf("-----RECV-----\n");
     qDebug() <<
 	printf("--------------\n\n");
-	Notify(MessagesUpdateEvent(0, *recv_msgs));
+    emit notifySignal(QSharedPointer<Event>(new MessagesUpdateEvent(0, *recv_msgs)));
 	return std::shared_ptr<IMessagePack>(static_cast<IMessagePack*>(recv_msgs));
-}
-
-void Client::AddObserver(IObserver* o)
-{
-	_observers.push_back(o);
-}
-
-void Client::Notify(const Event& e)
-{
-	for (auto&& o : _observers)
-	{
-		o->Update(e);
-	}
 }

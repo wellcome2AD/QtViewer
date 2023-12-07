@@ -9,5 +9,5 @@ class IObserver
 {
 public:
 	virtual ~IObserver() = default;
-	virtual void Update(const Event& e) = 0;
+	virtual void update(const Event& e) = 0;
 };

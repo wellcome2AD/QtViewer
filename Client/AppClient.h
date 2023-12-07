@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <vector>
 #include <string>
 #include <memory>
@@ -10,8 +11,9 @@
 #include "../Message/IMessagePack.h"
 
 // command-line Client app that can send messages to Server.
-class Client : public IObservable
+class Client : public QObject
 {
+    Q_OBJECT
 public:
 	Client() = default;
 	virtual ~Client() = default;
@@ -20,8 +22,8 @@ public:
 	bool send(const std::string& url, const AuthorizedMessage* msg);
 	std::shared_ptr<IMessagePack> recv();
 
-	virtual void AddObserver(IObserver* o) override;
-	virtual void Notify(const Event& e) override;
+signals:
+    void notifySignal(QSharedPointer<Event> e);
 
 private:
 	friend class Viewer;

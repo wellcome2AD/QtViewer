@@ -28,8 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
     d->show();
     connect(d, &SignInDialog::SignInDialogAccepted, this, &MainWindow::signInDialogAccepted);
     connect(d, &SignInDialog::SignInDialogRejected, this, &MainWindow::signInDialogRejected);
-
-    _client.AddObserver(this);
+    qRegisterMetaType<QSharedPointer<Event>>("QSharedPointer<Event>");
+    connect(&_client, &Client::notifySignal, this, &MainWindow::update);
 }
 
 MainWindow::~MainWindow()
@@ -108,13 +108,13 @@ void MainWindow::tryToConnect()
     }
 }
 
-void MainWindow::Update(const Event& e)
+void MainWindow::update(QSharedPointer<Event> e)
 {
-    switch (e.GetEventType())
+    switch (e->GetEventType())
     {
     case messagesUpdate:
     {
-        auto&& msg = static_cast<const MessagesUpdateEvent&>(e).GetMsg();
+        auto&& msg = static_cast<const MessagesUpdateEvent&>(*e).GetMsg();
         qDebug() << "New message\n";
         handleMessage(msg);
         break;
@@ -132,41 +132,70 @@ void MainWindow::Update(const Event& e)
     }
 }
 
+#define INFO() fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
+
 void MainWindow::handleMessage(const IMessage& msg)
 {
+    INFO();
     switch (msg.GetFormat())
     {
     case text:
     {
+        INFO();
         auto&& txt_msg = static_cast<const TextMessage&>(msg);
+        INFO();
         _msg_pack->AddMsg(txt_msg);
+        INFO();
         auto str = txt_msg.GetUsername() + ": " + txt_msg.GetMsg();
-        ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
+        INFO();
+        auto text_label = new QLabel(ui->scrollArea);
+        INFO();
+        text_label->setText(QString::fromStdString(str));
+        INFO();
+        ui->scrollAreaWidgetContents->layout()->addWidget(text_label);
+        INFO();
         break;
     }
     case file:
     {
+        INFO();
         auto&& file_msg = static_cast<const FileMessage&>(msg);
+        INFO();
         auto&& file_name = createUniqueFileName(file_msg.GetExtension().c_str());
+        INFO();
         fileWrite(file_name, file_msg.GetMsg().data(), file_msg.GetMsg().size());
-        // system(std::string("start " + file_name).c_str());
-        // TODO хранить в FileMessage не расширение, а имя файла
+        INFO();
         _msg_pack->AddMsg(FileMessage(file_msg.GetUsername(), file_msg.GetPassword(), file_msg.GetExtension(), file_name));
-        auto str = file_msg.GetUsername() + ": " + file_name;
-        // TODO отображать картинки в приложении
-        ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
+        INFO();
+        QPixmap pixmap;
+        INFO();
+        pixmap.load(QString::fromStdString(file_name));
+        INFO();
+        auto img_label = new QLabel(ui->scrollArea);
+        INFO();
+        img_label->resize(pixmap.size());
+        INFO();
+        img_label->setPixmap(pixmap);
+        INFO();
+        ui->scrollAreaWidgetContents->layout()->addWidget(img_label);
+        INFO();
         break;
     }
     case msgPack:
     {
+        INFO();
         auto&& pack_msg = static_cast<const MessagePack&>(msg);
+        INFO();
         for (auto&& m : pack_msg.GetMsgs())
         {
             handleMessage(*m);
         }
+        INFO();
         break;
     }
     default:
+        INFO();
         assert(0);
     }
+    INFO();
 }
