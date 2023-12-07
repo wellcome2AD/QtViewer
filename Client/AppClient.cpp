@@ -117,5 +117,6 @@ std::shared_ptr<IMessagePack> Client::recv()
     qDebug() <<
 	printf("--------------\n\n");
     emit notifySignal(QSharedPointer<Event>(new MessagesUpdateEvent(0, *recv_msgs)));
-	return std::shared_ptr<IMessagePack>(static_cast<IMessagePack*>(recv_msgs));
+    //return std::shared_ptr<IMessagePack>(static_cast<IMessagePack*>(recv_msgs));
+    return nullptr;
 }

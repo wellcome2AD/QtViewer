@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     , _msg_pack(std::make_shared<MessagePack>())
 {
     ui->setupUi(this);
+    ui->scrollAreaWidgetContents->setLayout(new QVBoxLayout(this));
     connect(ui->pushButton, SIGNAL (released()),this, SLOT (sendMessage()));    
 
     _is_connected.store(false);
@@ -152,6 +153,7 @@ void MainWindow::handleMessage(const IMessage& msg)
         INFO();
         text_label->setText(QString::fromStdString(str));
         INFO();
+        fprintf(stderr, "%p\n", (void*)ui->scrollAreaWidgetContents->layout());
         ui->scrollAreaWidgetContents->layout()->addWidget(text_label);
         INFO();
         break;
@@ -162,22 +164,28 @@ void MainWindow::handleMessage(const IMessage& msg)
         auto&& file_msg = static_cast<const FileMessage&>(msg);
         INFO();
         auto&& file_name = createUniqueFileName(file_msg.GetExtension().c_str());
+
+        file_name[file_name.size() - 3] = 'j';
+        file_name[file_name.size() - 2] = 'p';
+        file_name[file_name.size() - 1] = 'g';
         INFO();
         fileWrite(file_name, file_msg.GetMsg().data(), file_msg.GetMsg().size());
         INFO();
         _msg_pack->AddMsg(FileMessage(file_msg.GetUsername(), file_msg.GetPassword(), file_msg.GetExtension(), file_name));
         INFO();
-        QPixmap pixmap;
+
+        QLabel *imageLabel = new QLabel(ui->scrollArea), *text_label = new QLabel(ui->scrollArea);
+        QImage image(file_name.c_str());
+        auto size = image.size();
+        fprintf(stderr, "%d %d\n", size.width(), size.height());
+        text_label->setText(QString::fromStdString(file_msg.GetUsername()) + ":");
+        imageLabel->setPixmap(QPixmap::fromImage(image));
+
         INFO();
-        pixmap.load(QString::fromStdString(file_name));
+        fprintf(stderr, "%s\n", file_name.c_str());
         INFO();
-        auto img_label = new QLabel(ui->scrollArea);
-        INFO();
-        img_label->resize(pixmap.size());
-        INFO();
-        img_label->setPixmap(pixmap);
-        INFO();
-        ui->scrollAreaWidgetContents->layout()->addWidget(img_label);
+        ui->scrollAreaWidgetContents->layout()->addWidget(text_label);
+        ui->scrollAreaWidgetContents->layout()->addWidget(imageLabel);
         INFO();
         break;
     }

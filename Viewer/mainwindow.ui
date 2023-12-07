@@ -83,17 +83,6 @@
          <height>325</height>
         </rect>
        </property>
-       <widget class="QWidget" name="verticalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>531</width>
-          <height>321</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout"/>
-       </widget>
       </widget>
      </widget>
     </item>
