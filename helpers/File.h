@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include <IConvertableToHttp.h>
 
-#include "../ResponseBuilder/IConvertableToHttp.h"
+//#include "../ResponseBuilder/IConvertableToHttp.h"
 
 class File : public IConvertableToHttp
 {

@@ -1,9 +1,10 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <UtilString.h>
 
 #include "SocketClient.h"
-#include "../../helpers/UtilString.h"
+//#include "../../helpers/UtilString.h"
 
 bool SocketClient::connect(const std::string& url)
 {

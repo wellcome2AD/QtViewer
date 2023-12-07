@@ -1,20 +1,35 @@
 #include <time.h>
 #include <algorithm>
+#include <QDebug>
+#include <AppClient.h>
+#include <SocketSerializer.h>
+#include <SerializerOperators.h>
+#include <SocketDeserializer.h>
+#include <DeserializerOperators.h>
+#include <UtilString.h>
+#include <UtilFile.h>
+#include <Socket/SocketException.h>
+#include <Event.h>
+#include <IObserver.h>
+#include <MessagesUpdateEvent.h>
+#include <MessagePack.h>
+#include <Socket/ConnResetException.h>
+#include <ConnResetEvent.h>
 
-#include "AppClient.h"
-#include "../Serializer/SocketSerializer.h"
-#include "../Serializer/SerializerOperators.h"
-#include "../Deserializer/SocketDeserializer.h"
-#include "../Deserializer/DeserializerOperators.h"
-#include "../helpers/UtilString.h"
-#include "../helpers/UtilFile.h"
-#include "../helpers/socket/SocketException.h"
-#include "../Observer/Event.h"
-#include "../Observer/IObserver.h"
-#include "../Observer/MessagesUpdateEvent.h"
-#include "../Message/MessagePack.h"
-#include "../helpers/Socket/ConnResetException.h"
-#include "../Observer/ConnResetEvent.h"
+//#include "AppClient.h"
+//#include "../Serializer/SocketSerializer.h"
+//#include "../Serializer/SerializerOperators.h"
+//#include "../Deserializer/SocketDeserializer.h"
+//#include "../Deserializer/DeserializerOperators.h"
+//#include "../helpers/UtilString.h"
+//#include "../helpers/UtilFile.h"
+//#include "../helpers/socket/SocketException.h"
+//#include "../Observer/Event.h"
+//#include "../Observer/IObserver.h"
+//#include "../Observer/MessagesUpdateEvent.h"
+//#include "../Message/MessagePack.h"
+//#include "../helpers/Socket/ConnResetException.h"
+//#include "../Observer/ConnResetEvent.h"
 
 bool Client::connect(std::string url)
 {
@@ -98,16 +113,9 @@ std::shared_ptr<IMessagePack> Client::recv()
 		return nullptr;
 	}
 	assert(recv_msgs);		
-	/*
 	printf("-----RECV-----\n");
-	for (auto&& msg : _msgs.get()->GetMsgs())
-	{
-		AuthorizedMessage* imsg = dynamic_cast<AuthorizedMessage*>(msg.get());
-		assert(imsg);
-		printf("%s : %s %s\n", imsg->GetUsername().c_str(), toString(imsg->GetFormat()).c_str(), imsg->GetMsg().c_str());
-	}
+    qDebug() <<
 	printf("--------------\n\n");
-	*/
 	Notify(MessagesUpdateEvent(0, *recv_msgs));
 	return std::shared_ptr<IMessagePack>(static_cast<IMessagePack*>(recv_msgs));
 }

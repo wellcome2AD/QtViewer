@@ -16,6 +16,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , _msg_pack(std::make_shared<MessagePack>())
 {
     ui->setupUi(this);
     connect(ui->pushButton, SIGNAL (released()),this, SLOT (sendMessage()));    
@@ -29,14 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(d, &SignInDialog::SignInDialogRejected, this, &MainWindow::signInDialogRejected);
 
     _client.AddObserver(this);
-
-    std::thread thr([&]() {
-        while (_is_connected.load())
-        {
-            _client.recv();
-        }
-    });
-    thr.detach();
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +67,7 @@ void MainWindow::signInDialogRejected()
 void MainWindow::sendMessage()
 {
     auto msg = ui->textEdit->toPlainText().toStdString();
+    ui->textEdit->setText("");
     auto &&url = _url.toStdString(), username = _user_name.toStdString(), password = _password.toStdString();
     AuthorizedMessage* msg_to_send = nullptr;
     format msg_format = fileExists(msg) ? file : text;
@@ -96,12 +90,22 @@ void MainWindow::sendMessage()
         break;
     }
     _client.send(url, msg_to_send);
-    delete[] msg_to_send;
+    delete msg_to_send;
 }
 
 void MainWindow::tryToConnect()
 {
     _is_connected.store(_client.connect(_url.toStdString()));
+    if(_is_connected.load())
+    {
+        std::thread thr([&]() {
+            while (_is_connected.load())
+            {
+                _client.recv();
+            }
+        });
+        thr.detach();
+    }
 }
 
 void MainWindow::Update(const Event& e)
@@ -136,7 +140,7 @@ void MainWindow::handleMessage(const IMessage& msg)
     {
         auto&& txt_msg = static_cast<const TextMessage&>(msg);
         _msg_pack->AddMsg(txt_msg);
-        auto str = txt_msg.GetUsername() + txt_msg.GetMsg();
+        auto str = txt_msg.GetUsername() + ": " + txt_msg.GetMsg();
         ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
         break;
     }
@@ -145,10 +149,11 @@ void MainWindow::handleMessage(const IMessage& msg)
         auto&& file_msg = static_cast<const FileMessage&>(msg);
         auto&& file_name = createUniqueFileName(file_msg.GetExtension().c_str());
         fileWrite(file_name, file_msg.GetMsg().data(), file_msg.GetMsg().size());
-        system(std::string("start " + file_name).c_str());
+        // system(std::string("start " + file_name).c_str());
         // TODO хранить в FileMessage не расширение, а имя файла
         _msg_pack->AddMsg(FileMessage(file_msg.GetUsername(), file_msg.GetPassword(), file_msg.GetExtension(), file_name));
-        auto str = file_msg.GetUsername() + file_name;
+        auto str = file_msg.GetUsername() + ": " + file_name;
+        // TODO отображать картинки в приложении
         ui->plainTextEdit->appendPlainText(QString::fromStdString(str));
         break;
     }

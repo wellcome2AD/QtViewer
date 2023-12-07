@@ -1,6 +1,8 @@
 #pragma once
 
-#include "IMessage.h"
+#include <IMessage.h>
+
+//#include "IMessage.h"
 
 class RequestMessage : public IMessage {
 public:

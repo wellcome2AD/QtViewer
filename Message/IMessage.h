@@ -2,8 +2,9 @@
 
 #include <string>
 #include <assert.h>
+#include <IClonable.h>
 
-#include "../Client/IClonable.h"
+//#include "../Client/IClonable.h"
 
 #define SIZE_OF_FORMAT 4
 

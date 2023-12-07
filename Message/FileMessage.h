@@ -1,6 +1,8 @@
 #pragma once
 
-#include "AuthorizedMessage.h"
+#include <AuthorizedMessage.h>
+
+//#include "AuthorizedMessage.h"
 
 class FileMessage : public AuthorizedMessage {
 public:

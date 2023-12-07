@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <Event.h>
 
-#include "Event.h"
+//#include "Event.h"
 
 class IObserver
 {
