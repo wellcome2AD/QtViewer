@@ -2,8 +2,9 @@
 
 #include <vector>
 #include <memory>
+#include <IMessage.h>
 
-#include "IMessage.h"
+//#include "IMessage.h"
 
 class IMessagePack : public IMessage
 {

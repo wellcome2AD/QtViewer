@@ -1,9 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <Event.h>
+#include <IMessagePack.h>
 
-#include "Event.h"
-#include "../Message/IMessagePack.h"
+//#include "Event.h"
+//#include "../Message/IMessagePack.h"
 
 class ConnResetEvent : public Event
 {

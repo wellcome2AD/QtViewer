@@ -1,14 +1,21 @@
 #pragma once
 
 #include <memory>
+#include <Deserializer.h>
+#include <IMessage.h>
+#include <TextMessage.h>
+#include <FileMessage.h>
+#include <RequestMessage.h>
+#include <MessagePack.h>
+#include <UtilString.h>
 
-#include "Deserializer.h"
-#include "../Message/IMessage.h"
-#include "../Message/TextMessage.h"
-#include "../Message/FileMessage.h"
-#include "../Message/RequestMessage.h"
-#include "../Message/MessagePack.h"
-#include "../helpers/UtilString.h"
+//#include "Deserializer.h"
+//#include "../Message/IMessage.h"
+//#include "../Message/TextMessage.h"
+//#include "../Message/FileMessage.h"
+//#include "../Message/RequestMessage.h"
+//#include "../Message/MessagePack.h"
+//#include "../helpers/UtilString.h"
 
 typedef size_t MSG_FIELD_SIZE_TYPE;
 

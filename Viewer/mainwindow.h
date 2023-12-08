@@ -9,7 +9,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow, public IObserver
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
 
 private:
     void tryToConnect();
-    virtual void Update(const Event& e) override;
+    void handleMessage(const IMessage& m);
 
 private:
     Ui::MainWindow *ui;
@@ -30,10 +30,10 @@ private:
     std::shared_ptr<IMessagePack> _msg_pack;
 
 private slots:
-    void signInDialogAccepted(QString port, QString user_name, QString password);
+    void signInDialogAccepted(QString url, QString user_name, QString password);
     void signInDialogRejected();
     void sendMessage();
-    void handleMessage(const IMessage& m);
+    void update(QSharedPointer<Event> e);
 
 };
 #endif // MAINWINDOW_H

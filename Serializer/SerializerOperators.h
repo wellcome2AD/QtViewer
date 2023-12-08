@@ -3,12 +3,17 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <Serializer.h>
+#include <IMessage.h>
+#include <TextMessage.h>
+#include <FileMessage.h>
+#include <RequestMessage.h>
 
-#include "Serializer.h"
-#include "../Message/IMessage.h"
-#include "../Message/TextMessage.h"
-#include "../Message/FileMessage.h"
-#include "../Message/RequestMessage.h"
+//#include "Serializer.h"
+//#include "../Message/IMessage.h"
+//#include "../Message/TextMessage.h"
+//#include "../Message/FileMessage.h"
+//#include "../Message/RequestMessage.h"
 
 typedef size_t MSG_FIELD_SIZE_TYPE;
 class my_endl {};

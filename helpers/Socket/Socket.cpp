@@ -1,8 +1,9 @@
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <UtilString.h>
 
 #include "Socket.h"
-#include "../UtilString.h"
+//#include "../UtilString.h"
 #include "ConnResetException.h"
 
 static int sSocketId = 0;

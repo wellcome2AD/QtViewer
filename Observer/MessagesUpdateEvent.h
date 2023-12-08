@@ -1,10 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <Event.h>
+#include <IMessagePack.h>
+#include <MessagePack.h>
 
-#include "Event.h"
-#include "../Message/IMessagePack.h"
-#include "../Message/MessagePack.h"
+//#include "Event.h"
+//#include "../Message/IMessagePack.h"
+//#include "../Message/MessagePack.h"
 
 class MessagesUpdateEvent : public Event
 {
