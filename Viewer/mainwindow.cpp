@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     , _msg_pack(std::make_shared<MessagePack>())
 {
     ui->setupUi(this);
-    ui->scrollAreaWidgetContents->setLayout(new QVBoxLayout(this));
+    ui->scrollAreaWidgetContents->setLayout(new QGridLayout(this));
     connect(ui->pushButton, SIGNAL (released()),this, SLOT (sendMessage()));    
 
     _is_connected.store(false);
@@ -133,77 +133,47 @@ void MainWindow::update(QSharedPointer<Event> e)
     }
 }
 
-#define INFO() fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
-
 void MainWindow::handleMessage(const IMessage& msg)
 {
-    INFO();
     switch (msg.GetFormat())
     {
     case text:
     {
-        INFO();
         auto&& txt_msg = static_cast<const TextMessage&>(msg);
-        INFO();
         _msg_pack->AddMsg(txt_msg);
-        INFO();
         auto str = txt_msg.GetUsername() + ": " + txt_msg.GetMsg();
-        INFO();
         auto text_label = new QLabel(ui->scrollArea);
-        INFO();
         text_label->setText(QString::fromStdString(str));
-        INFO();
-        fprintf(stderr, "%p\n", (void*)ui->scrollAreaWidgetContents->layout());
         ui->scrollAreaWidgetContents->layout()->addWidget(text_label);
-        INFO();
         break;
     }
     case file:
     {
-        INFO();
         auto&& file_msg = static_cast<const FileMessage&>(msg);
-        INFO();
         auto&& file_name = createUniqueFileName(file_msg.GetExtension().c_str());
-
-        file_name[file_name.size() - 3] = 'j';
-        file_name[file_name.size() - 2] = 'p';
-        file_name[file_name.size() - 1] = 'g';
-        INFO();
         fileWrite(file_name, file_msg.GetMsg().data(), file_msg.GetMsg().size());
-        INFO();
         _msg_pack->AddMsg(FileMessage(file_msg.GetUsername(), file_msg.GetPassword(), file_msg.GetExtension(), file_name));
-        INFO();
 
         QLabel *imageLabel = new QLabel(ui->scrollArea), *text_label = new QLabel(ui->scrollArea);
         QImage image(file_name.c_str());
         auto size = image.size();
-        fprintf(stderr, "%d %d\n", size.width(), size.height());
         text_label->setText(QString::fromStdString(file_msg.GetUsername()) + ":");
         imageLabel->setPixmap(QPixmap::fromImage(image));
 
-        INFO();
-        fprintf(stderr, "%s\n", file_name.c_str());
-        INFO();
         ui->scrollAreaWidgetContents->layout()->addWidget(text_label);
         ui->scrollAreaWidgetContents->layout()->addWidget(imageLabel);
-        INFO();
         break;
     }
     case msgPack:
     {
-        INFO();
         auto&& pack_msg = static_cast<const MessagePack&>(msg);
-        INFO();
         for (auto&& m : pack_msg.GetMsgs())
         {
             handleMessage(*m);
         }
-        INFO();
         break;
     }
     default:
-        INFO();
         assert(0);
     }
-    INFO();
 }
