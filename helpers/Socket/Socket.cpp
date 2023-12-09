@@ -19,7 +19,8 @@ Socket::Socket()
 
 Socket::~Socket()
 {
-	close();
+    // fprintf(stderr, "Socket closed\n");
+    // close();
 
 	if (--sSocketId == 0)
 		WSACleanup(); // this is executed once during app teardown
